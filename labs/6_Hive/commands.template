@@ -1,0 +1,19 @@
+$ hive
+
+hive> set hive.cli.print.current.db=true;
+
+hive> DROP DATABASE IF EXISTS XYZ CASCADE;
+hive> CREATE DATABASE XYZ;
+hive> USE XYZ;
+
+hive> CREATE TABLE t1(W STRING, N INT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ',';
+
+hive> LOAD DATA INPATH 'pig/words.csv' INTO TABLE t1;
+hive> select count(*) from t1;
+hive> select max(N) from t1;
+### hive> drop table t1;
+### hive> drop database XYZ;
+hive> exit;
+

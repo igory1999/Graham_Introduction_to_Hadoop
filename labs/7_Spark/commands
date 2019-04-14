@@ -1,0 +1,37 @@
+lines = sc.textFile("wordcount/README")
+
+lines
+lines.collect()
+
+# maximum number of words in lines
+
+s2 = lines.map(lambda line: len(line.split()))
+
+s2
+s2.collect()
+
+s3 = s2.reduce(lambda a,b: a if(a>b) else b)
+s3
+
+s4 = lines.map(lambda line: len(line.split())).reduce(lambda a,b: a if(a>b) else b)
+s4
+
+# how many times each line occur in text
+pairs = lines.map(lambda s: (s,1))
+counts = pairs.reduceByKey(lambda a, b: a+b)
+counts
+
+# put an array on the cluster:
+data = [ 1, 2, 3, 4, 5]
+distData = sc.parallelize(data)
+distData
+
+# broadcast variables
+broadcastVar = sc.broadcast([1,2,3])
+broadcastVar.value
+
+# accumulators
+
+accum = sc.accumulator(0)
+distData.foreach(lambda x: accum.add(x))
+accum.value

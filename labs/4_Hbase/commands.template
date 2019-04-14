@@ -1,0 +1,65 @@
+# after executing 'hbase shell'
+
+# Create HBase table with 2 column families:
+
+create 'XYZ', 'CustomerName', 'ContactInfo'
+
+# Insert data into the first record, CustomerName column family.
+# Note: we did not have to specify in advance columns within
+# column family.
+
+put 'XYZ', '00001', 'CustomerName:FN', 'John'
+put 'XYZ', '00001', 'CustomerName:LN', 'Smith'
+put 'XYZ', '00001', 'CustomerName:MN', 'T'
+
+# Insert data into the first record, ContactInfo column family
+
+put 'XYZ', '00001', 'ContactInfo:EA', 'John.Smith@xyz.com'
+put 'XYZ', '00001', 'ContactInfo:SA', '1 Hadoop Lane, NY 11111'
+
+# Insert data into the second record, CustomerName column family
+
+put 'XYZ', '00002', 'CustomerName:FN', 'Jane'
+put 'XYZ', '00002', 'CustomerName:LN', 'Doe'
+
+# Insert data into the second record, ContactInfo column family
+
+put 'XYZ', '00002', 'ContactInfo:SA', '7 HBase Ave, CA 22222'
+
+# List tables in HBase:
+
+list
+
+# List and describe column families:
+
+describe 'XYZ'
+
+# Keep last 5 versions for column family CustomerName
+
+alter 'XYZ', NAME => 'CustomerName', VERSIONS => 5
+describe 'XYZ'
+
+# Insert second version for CustomerName:MN
+
+put 'XYZ', '00001', 'CustomerName:MN', 'Timothy'
+
+# Show up to two versions for each column family
+
+scan 'XYZ', {VERSIONS => 2}
+
+# Get record 00001
+
+get 'XYZ', '00001'
+
+# Get particular column from record 00001
+
+get 'XYZ', '00001', {COLUMN => 'CustomerName:MN'}
+
+# Delete the table
+
+disable 'XYZ'
+drop 'XYZ'
+
+quit
+
+

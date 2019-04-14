@@ -1,0 +1,11 @@
+DROP DATABASE IF EXISTS XYZ CASCADE;
+CREATE DATABASE XYZ;
+USE XYZ;
+
+CREATE TABLE t1(W STRING, N INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+LOAD DATA INPATH 'pig/words.csv' INTO TABLE t1;
+select count(*) from t1;
+select max(N) from t1;
+select * from t1 limit 5;
+exit;
+
