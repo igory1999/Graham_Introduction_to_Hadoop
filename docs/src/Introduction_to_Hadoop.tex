@@ -944,7 +944,6 @@ max(serviceorders.serviceordernum) FROM serviceorders" \
   \item {\color{mycolorcode}distinct([numTasks]))}
   \item {\color{mycolorcode}groupByKey([numTasks])}
   \item {\color{mycolorcode}sortByKey([ascending], [numTasks])}
-  \item {\color{mycolorcode}pipe(command, [envVars])}
   \end{itemize}
 \end{frame}
 
@@ -952,12 +951,16 @@ max(serviceorders.serviceordernum) FROM serviceorders" \
 \begin{frame}
   \frametitle{Spark: RDD: actions}
   \begin{itemize}
-  \item {\color{mycolorcode}reduce(func)} - Aggregate the elements of the dataset using a function func (which takes two arguments and returns one). The function should be commutative and associative so that it can be computed correctly in parallel.
-  \item {\color{mycolorcode}collect()} - Return all the elements of the dataset as an array at the driver program.
+
+  \item {\color{mycolorcode}collect()} - Return all the elements of the dataset as an array to the login node. Don't run it until you reduce the data enough on the cluster, it might not fit
+    into the memory of the login node.
   \item {\color{mycolorcode}count()}
   \item {\color{mycolorcode}take(n)} - Return first n elements of the results
-  \item {\color{mycolorcode}countByKey()} - Only available on RDDs of type (K, V). Returns a hashmap of (K, Int) pairs with the count of each key.
-  \item {\color{mycolorcode}foreach(func)} - Run a function func on each element of the dataset. This is usually done for side effects such as updating an accumulator variable (see below) or interacting with external storage systems.
+  \item {\color{mycolorcode}reduce(func)} - Aggregate the elements of the dataset using a function func (which takes two arguments and returns one). 
+    The function should be commutative and associative so that it can be computed correctly in parallel
+  \item {\color{mycolorcode}countByKey()} - Only available on RDDs of type (K, V).
+  \item {\color{mycolorcode}foreach(func)} - Run a function func on each element of the dataset. 
+    This is usually done for side effects such as updating an accumulator variable (see below) or interacting with external storage systems.
   \end{itemize}
 \end{frame}
 
@@ -1061,7 +1064,14 @@ print "Lines with a: %s, lines with b: %s" % (numAs, numBs)
   \frametitle{GUI}
   There are various GUI interfaces to Hadoop, for example:
   \begin{itemize}
-    \item JupyterHub - {\color{mycolorcli}\verb|https://hadoop.rcc.uchicago.edu|}
+  \item JupyterHub - {\color{mycolorcli}\verb|https://hadoop.rcc.uchicago.edu|}
+    \begin{itemize}
+    \item You need to exit JupyterHub properly, otherwise, your session continues running and consuming cluster resources:
+      \begin{itemize}
+        \item Inside the notebook: 'File' $\rightarrow$  'Close an Halt'
+        \item Select 'Running' tab in JupyterHub file manager and shut down running notebooks
+      \end{itemize}
+    \end{itemize}
     \item Hue - {\color{mycolorcli}\verb|https://hadoop.rcc.uchicago.edu:8888|}
     \end{itemize}
  \begin{figure}[h]
