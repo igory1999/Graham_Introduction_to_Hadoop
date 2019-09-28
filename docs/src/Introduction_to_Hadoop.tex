@@ -903,13 +903,15 @@ max(serviceorders.serviceordernum) FROM serviceorders" \
   \item API in Scala, Java, Python, R
   \item Rich set of higher-level tools:
     \begin{itemize}
-      \item Spark SQL
+      \item Spark SQL - introduces frames format that is like distributed table; to query data in frames, one can either use Spark or SQL syntax
       \item MLib - library for machine learning
       \item GraphX - library for graph processing
       \item Spark Streaming - scalable, high-throughput stream processing of live data streams.
     \end{itemize}
-  \item It can be used interactively or in batch
+  \item Spark can be used in combination with BigDL library from Intel that provides deep learning framework
+  \item Spark can be used interactively or in batch
   \item It works in Hadoop cluster, in general purpose cluster like midway, on your laptop
+  \item It understands Hadoop data formats, can work with HDFS if it is running under Hadoop
  \end{itemize}
 \end{frame}
 
