@@ -1,2 +1,2 @@
-export JAVA_HOME=/usr/java/jdk1.8.0_121
+export JAVA_HOME=/usr/java/default
 export PATH=$JAVA_HOME/bin:$PATH
