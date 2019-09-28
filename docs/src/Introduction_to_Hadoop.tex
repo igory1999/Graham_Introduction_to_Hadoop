@@ -80,19 +80,23 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{What is Hadoop?}
+  \frametitle{Hadoop zoo}
   \begin{itemize}
   \item There is a zoo of other Hadoop related tools
     \begin{itemize}
+    \item {\color{mycolordef}Hive} - SQL interface to Hadoop built on top of HDFS and MapReduce
+    \item {\color{mycolordef}Impala} - another SQL interface to Hadoop, allegedly much faster
     \item {\color{mycolordef}HBase} - noSQL fast distributed database on top of HDFS
-    \item {\color{mycolordef}Hive, Pig}  -  built on top of HDFS and MapReduce, provide simpler interface to data
-    \item {\color{mycolordef}Spark, Impala} - for performance reasons no longer rely on MapReduce
-    \item {\color{mycolordef}Sqoop, Flume} - import/export data to/from Hadoop
-    \item {\color{mycolordef}Solr} - fast indexer that can run on top of HDFS or on a standalone machine
-    \item {\color{mycolordef}YARN} - resource allocation manager
+    \item {\color{mycolordef}Pig}  -  data processing languague built on top of HDFS and MapReduce
+    \item {\color{mycolordef}Spark} - for performance reasons no longer relies on MapReduce,
+      can be used without Hadoop; its native language is Scala but it can also be used from Java, Python, R
+    \item {\color{mycolordef}Sqoop} - copy data between relational database and Hadoop
+    \item {\color{mycolordef}Flume} - copy data into Hadoop, typically used to store logs from a cluster for subsequent analysis
+    \item {\color{mycolordef}YARN} - resource allocation manager, used to submit jobs
     \item {\color{mycolordef}Zookeeper} - centralized service for maintaining configuration information, naming, providing distributed synchronization
     \item {\color{mycolordef}Hue} - web GUI to many of the above tools
     \end{itemize}
+  \item In Big Data Platform class you'll mostly use pySpark via JupyterHub interface, HDFS, Hive, Pig, Hue.
   \end{itemize}
 \end{frame}
 
@@ -151,36 +155,13 @@ Hadoop has no concept of transaction so is not ACID compiliant.
  \frametitle{Distributions}
  There are many Hadoop distributions that bundle different set of tools and add their own:
  \begin{itemize}
-  \item {\color{mycolordef}Apache}  - free;
-  \item {\color{mycolordef}Cloudera} - that's what we are running; commercial but older versions are free
-  \item {\color{mycolordef}Hortonworks}  - commercial, spinoff from Yahoo, free if you do not need support;
-  \item Many distributions, for example Cloudera, provide virtual machines to play with
-    \begin{itemize}
-    \item Cloudera QuickStarts
-    \item Hortonworks Sandbox
-    \end{itemize}
-    
-%  \item Cloudera QuickStarts
-%    {\small
-%    {\color{mycolorcli}
-%\begin{verbatim}
-%https://www.cloudera.com/downloads/quickstart_vms.html
-%\end{verbatim}
-%    }
-%    }
-%  \item Hortonworks Sandbox
-%    {\small
-%      {\color{mycolorcli}
-%\begin{verbatim}
-%https://www.cloudera.com/downloads/hortonworks-sandbox.html
-%\end{verbatim}
-%      }
-%    }    
-
-
-
-
+  \item {\color{mycolordef}Apache}  - free, open source;
+  \item {\color{mycolordef}Cloudera} - that's what we are running;
+  \item {\color{mycolordef}Hortonworks} 
+  \item {\color{mycolordef}HDInsight} - Microsoft  Azure's Cloud based Hadoop Distribution
+  \item {\color{mycolordef}MapR}
   \end{itemize}
+  Many distributions, for example Cloudera, provide virtual machines to play with
 \end{frame}
 
 \section{HDFS}
@@ -194,12 +175,13 @@ Hadoop has no concept of transaction so is not ACID compiliant.
       \begin{itemize}
 	\item calculations can be done in parallel on different blocks to increase performance
 	\item the file system is fault-taulerant with respect to disk/node/rack failure
-	\item if a node is down, HDFS takes care of creating more replicas automatically
+	\item if a node goes down, HDFS takes care of creating more replicas automatically
 	\item when a node comes back, extra replicas are destroyed
 	\item if a new node is added, data spreads on it automatically
 	\item there is a {\color{mycolordef}NameNode} that keeps track of where the blocks are
-	\item the calculations are done on {\color{mycolordef}DataNodes}, usually on the same node where the corresponding piece of data is.
       \end{itemize}
+	\item The calculations are done on {\color{mycolordef}DataNodes}
+        \item Hadoop tries to do computations where the data is to minimize communication between nodes which is much slower
     \end{itemize} 
 \end{frame}
 
@@ -231,6 +213,11 @@ $ hdfs dfs -get /user/$USER/test2/words.txt
 $ hdfs dfs -rm /user/$USER/test2/words.txt
   \end{lstlisting}
 }
+
+\begin{itemize}
+\item Lab 1
+\end{itemize}
+
 \end{frame}
 
 
@@ -239,16 +226,13 @@ $ hdfs dfs -rm /user/$USER/test2/words.txt
 \begin{frame}
  \frametitle{MapReduce}
  \begin{itemize}
-  \item {\color{mycolordef}\textbf{map}} - convert each record (for example, a line in a text file) into $(key, value)$ pairs
-    \begin{itemize}
-    \item  If you need to handle more complicated I/O than lines in a text file, a lot of formats and compression codecs 
-    are natively supported or you can overwrite the corresponding I/O Java classes.
-    \end{itemize}
-  \item {\color{mycolordef}\textbf{reduce}} - apply some reduce operation to the resulting set of $(key, value)$; for example, sum values for the given key, or max, or min, etc.
-  \item Obviously, maps can be done in parallel on each record
-  \item Between local map and global reduce, perhaps, do some {\color{mycolordef}\textbf{shuffle}} - for example, apply reduce locally on each node before doing it globally and sort the results
+  \item {\color{mycolordef}\textbf{map}} - convert each record into $(key, value)$ pairs
+  \item {\color{mycolordef}\textbf{reduce}} - apply some reduce operation to the resulting set of $(key, value)$; for example, sum values for each key, or find max, or min, etc.
+  \item Obviously, maps can be done in parallel, independently from each other, on different nodes, for each record
+  \item Between local map and global reduce, perhaps, apply reduce locally on each node before doing it globally and sort the results
   \item The native way to write your own MapReduce is to extend the corresponding Java classes from MapReduce API
-  \item These days people rarely have to implement their own MapReduce but rather use higher level tools like HBase, Hive, Spark, Impala
+  \item These days people rarely have to implement their own MapReduce but rather use high level tools like Pig, Hive, Spark, HBase, etc. unless you 
+    are a programmer implementing such a high level tool
   \end{itemize}
 \end{frame}
 
@@ -444,6 +428,11 @@ hdfs dfs -getmerge wordcount/output merged.txt
 cat merged.txt | grep sort
 \end{lstlisting}
 }
+
+\begin{itemize}
+\item Lab 2
+\end{itemize}
+
 \end{frame}
 
   
@@ -451,22 +440,14 @@ cat merged.txt | grep sort
   \begin{frame}[fragile]
  \frametitle{MapReduce: using streaming}
  \begin{itemize}
- \item Streaming interface allows one to write MapReduce in any language although the functionality is limited (no shuffle) and the performance is worse than what one can
+ \item Streaming interface allows one to write MapReduce in any language although the functionality is limited and the performance is worse than what one can
  get by using native Java API. 
- \item Mapper takes input from stdin, breaks it into records (for example, lines in a text file) and is expected to print to stdout pairs of key and value separated by Tab; everything before the first Tab is considered a key, the rest of the line is considered a value
+\item Mapper takes input from stdin, breaks it into records - lines in a text file - and is expected to print to stdout pairs of key and value separated by Tab;
+  everything before the first Tab is considered a key, the rest of the line is considered a value
  \item Similarly reducer is expected to receive such pairs in stdin and prints its results to stdout
  \item When launching a job, one needs to use Hadoop's streaming jar and specify mapper, reducer, input and output files as options
-\item For example, let us use shell commands to count lines: 
- \end{itemize}
 
-{\color{mycolorcli}
- \begin{lstlisting}[frame=single, basicstyle=\tiny]
-hadoop jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-streaming.jar \
-       -input /user/$USER/wordcount/README \
-       -output /user/$USER/wordcount/streaming-out \ 
-       -mapper '/bin/cat' -reducer '/usr/bin/wc -l'
- \end{lstlisting}
-}
+ \end{itemize}
 \end{frame}
 
   
@@ -541,6 +522,9 @@ hadoop jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-streaming.jar \
        -file mapper.py -mapper mapper.py -file reducer.py -reducer reducer.py
  \end{lstlisting}
 }
+
+\item Lab 3
+
  \end{itemize}
 
 
@@ -675,6 +659,9 @@ CustomerName:MN       timestamp=1471197270641, value=Timothy
 > quit
   \end{lstlisting}
 }
+\begin{itemize}
+\item Lab 4
+\end{itemize}
 \end{frame}
 
 
@@ -688,20 +675,8 @@ CustomerName:MN       timestamp=1471197270641, value=Timothy
   \item Pig
   \item Spark
   \item Impala
- \end{itemize}
+  \end{itemize}
 \end{frame}
-
-\subsection{Applications}
-\begin{frame}
- \frametitle{HBase: applications}
- \begin{itemize}
-   \item Index documents to do web search; used in Facebook, Twitter, StumbleUpon, etc.
-   \item Store performance metrics for monitoring huge clusters of computers (for example, StumbleUpon is using OpenTSDB on top of HBase for that)
-   \item Capturing user-interaction data (Facebook and StumbleUpon): how many times people like a particular page or product. StumbleUpon started doing that originally with MySQL 
-     but soon it became too much for relational database to handle.
- \end{itemize}
-\end{frame}
-
 
 
 \section{Pig}
@@ -782,6 +757,10 @@ r3 = join r1 by W, r2 by W;
   \end{lstlisting}
 }
 
+\begin{itemize}
+\item Lab 5
+\end{itemize}
+
 \end{frame}
 
 
@@ -831,23 +810,9 @@ and submit three files as homework: {\color{mycolorcli}\verb|my.sql|}, {\color{m
 hive --database my1 -e 'select count(*) from t1;'
 \end{verbatim}
 }
+\item Lab 6
 \end{itemize}
 
-
-\end{frame}
-
-\section{Impala}
-
-\begin{frame}
- \frametitle{Impala}
- \begin{itemize}
-  \item Yet another SQL on top of Hadoop query engine from Cloudera
-  \item Supports HDFS and HBase storage
-  \item Very fast, low latency
-  \item Cloudera claims that it is faster than other SQL engines on Hadoop
-  \item Usage is similar to Hive
- \end{itemize}
- 
 \end{frame}
 
 
@@ -934,7 +899,7 @@ max(serviceorders.serviceordernum) FROM serviceorders" \
  \frametitle{Spark}
  \begin{itemize}
   \item Apache Spark - fast general-purpose cluster computing system
-  \item API in Scala, Java and Python
+  \item API in Scala, Java, Python, R
   \item Rich set of higher-level tools:
     \begin{itemize}
       \item Spark SQL
@@ -942,7 +907,8 @@ max(serviceorders.serviceordernum) FROM serviceorders" \
       \item GraphX - library for graph processing
       \item Spark Streaming - scalable, high-throughput stream processing of live data streams.
     \end{itemize}
-  \item It can run locally or on the cluster, in batch or inside an interpreter
+  \item It can be used interactively or in batch
+  \item It works in Hadoop cluster, in general purpose cluster like midway, on your laptop
  \end{itemize}
 \end{frame}
 
@@ -1049,10 +1015,7 @@ print "Lines with a: %s, lines with b: %s" % (numAs, numBs)
   \begin{lstlisting}[frame=single,basicstyle=\tiny]
     $ pyspark
     >>> lines = sc.textFile(``wordcount/README'')
-    # maximum number of words in lines
     >>> lines.map(lambda line: len(line.split())).reduce(lambda a,b: a if (a>b) else b)
-
-    # how many times each line occur in text    
     >>> pairs = lines.map(lambda s: (s,1))
     >>> counts = pairs.reduceByKey(lambda a, b: a+b)
 
@@ -1072,6 +1035,9 @@ print "Lines with a: %s, lines with b: %s" % (numAs, numBs)
         10
   \end{lstlisting}
 }
+\begin{itemize}
+\item Lab 7
+\end{itemize}
 \end{frame}
 
 \subsection{Running on general purpose cluster}
@@ -1080,8 +1046,8 @@ print "Lines with a: %s, lines with b: %s" % (numAs, numBs)
 
 \begin{itemize}
   \item Unless you rely on HDFS, HBase or some other Hadoop-specific componenet, you can easily use Spark without Hadoop on a general purpose cluster.
-  \item It is installed on midway cluster
-  \item See lab {\color{mycolorcli}\verb|8_Spark_on_midway|} for examples of running on single or multiple nodes.
+  \item It is installed on midway
+  \item Lab 8
 \end{itemize}
 
 \end{frame}
@@ -1092,10 +1058,9 @@ print "Lines with a: %s, lines with b: %s" % (numAs, numBs)
   \frametitle{GUI}
   There are various GUI interfaces to Hadoop, for example:
   \begin{itemize}
-    \item Hue - {\color{mycolorcli}\verb|https://hadoop.rcc.uchicago.edu:8888|}
     \item JupyterHub - {\color{mycolorcli}\verb|https://hadoop.rcc.uchicago.edu|}
-    \item Cloudera Manager - {\color{mycolorcli}\verb|https://hadoop.rcc.uchicago.edu:7183/cmf/login|}
-  \end{itemize}
+    \item Hue - {\color{mycolorcli}\verb|https://hadoop.rcc.uchicago.edu:8888|}
+    \end{itemize}
  \begin{figure}[h]
  \includegraphics[width=10cm]{graphs/hue1.png}
  \end{figure}
