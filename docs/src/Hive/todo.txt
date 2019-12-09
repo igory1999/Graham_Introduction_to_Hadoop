@@ -1,0 +1,11 @@
+external and internal databases
+
+internal: if you load a file from HDFS, it disappears but not from GPFS
+
+external: removing database in Hive, does not remove data from disk
+
+use hive from shell, command line, hue
+
+datatype converstion; dates
+
+

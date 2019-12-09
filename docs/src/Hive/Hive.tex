@@ -1,0 +1,115 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{default}
+
+\mode<presentation>
+%{ \usetheme{boxes} }
+
+
+\usetheme{Madrid}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{tabulary}
+\usepackage{listings}
+\usepackage{verbatimbox}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{pgfpages}
+\usepackage{color}
+
+\pgfdeclareimage[height=1.0cm]{logo_rcc}{../icons/logo_rcc.png}
+\setlength{\TPHorizModule}{1mm}
+\setlength{\TPVertModule}{1mm}
+\newcommand{\RCCLogo}{
+\begin{textblock}{14}(1.5,1.5)
+  \pgfuseimage{logo_rcc}
+\end{textblock}
+}
+
+\definecolor{mycolorcli}{RGB}{53,154,26}
+\definecolor{mycolorcode}{RGB}{0,0,255}
+\definecolor{mycolordef}{RGB}{255,0,0}
+\definecolor{mycolorlink}{RGB}{184,4,255}
+
+\title{\huge{Hive}}
+\author{Igor Yakushin \\ \texttt{ivy2@uchicago.edu}}
+%\date{January 20, 2018}
+
+\definecolor{ChicagoMaroon}{RGB}{128,0,0}
+
+\setbeamercolor{title}{bg=ChicagoMaroon}
+
+\begin{document}
+
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamercolor{fcolor}{fg=white,bg=ChicagoMaroon}
+\setbeamertemplate{footline}{
+\begin{beamercolorbox}[ht=4ex,leftskip=1.4cm,rightskip=.3cm]{fcolor}
+\hrule
+\vspace{0.1cm}
+   \hfill \insertshortdate \hfill \insertframenumber/\inserttotalframenumber
+\end{beamercolorbox}
+}
+
+\setbeamercolor{frametitle}{bg=ChicagoMaroon,fg=white}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+\section{Hive}
+\subsection{Introduction}
+\begin{frame}
+ \frametitle{Hive: introduction}
+ \begin{itemize}
+  \item Hive provides Hadoop with SQL access to data
+  \item Hive server, sitting on top of HDFS and MapReduce, accepts connections from various Hive clients via, for example, ODBC, JDBC drivers and converts SQL into MapReduce jobs
+  \item Hive supports a large subset of SQL including joins
+  \item One can create indexes to improve performance
+  \item When creating a table, one specifies where the data is stored: textfile, HBase table or any other of numerous data formats supported by Hadoop and residing on HDFS
+ \end{itemize}
+
+\end{frame}
+
+\subsection{Example}
+\begin{frame}[fragile]
+  \frametitle{Hive: example}
+{\color{mycolorcode}
+  \begin{lstlisting}[frame=single, basicstyle=\tiny]
+$ hive
+hive> set hive.cli.print.current.db=true;
+hive> CREATE DATABASE my1;
+hive> USE my1;
+hive (my1)> CREATE TABLE t1(W STRING, N INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+hive (my1)> LOAD DATA INPATH 'words.csv' INTO TABLE t1;
+hive (my1)> select count(*) from t1;
+hive (my1)> select max(N) from t1;
+\end{lstlisting}
+}
+\begin{itemize}
+\item To avoid collision, everybody should use a separate database named by username
+\item Interactive usage is only good for experimentation, don't use it for homework. Instead, prepare
+  a sql script, for example, {\color{mycolorcli}\verb|my.sql|}, and execute it as follows:
+{\color{mycolorcli}
+\begin{verbatim}
+hive -f my.sql > out.txt 2> err.txt
+\end{verbatim}
+}
+and submit three files as homework: {\color{mycolorcli}\verb|my.sql|}, {\color{mycolorcli}\verb|out.txt|} and 
+{\color{mycolorcli}\verb|err.txt|}.
+\item You can also run sql on hive database as follows:
+{\color{mycolorcli}
+\begin{verbatim}
+hive --database my1 -e 'select count(*) from t1;'
+\end{verbatim}
+}
+\end{itemize}
+
+\end{frame}
+
+\end{document}

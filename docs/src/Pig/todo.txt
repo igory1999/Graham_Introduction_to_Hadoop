@@ -1,0 +1,11 @@
+Better explain the language
+
+Connection to hive
+
+Difference in pig and hive datatypes, conversion
+
+Check metadata
+
+Submit jobs in batch
+
+Running pig on laptop

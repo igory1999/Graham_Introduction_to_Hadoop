@@ -1,0 +1,126 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{default}
+
+\mode<presentation>
+%{ \usetheme{boxes} }
+
+
+\usetheme{Madrid}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{tabulary}
+\usepackage{listings}
+\usepackage{verbatimbox}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{pgfpages}
+\usepackage{color}
+
+\pgfdeclareimage[height=1.0cm]{logo_rcc}{../icons/logo_rcc.png}
+\setlength{\TPHorizModule}{1mm}
+\setlength{\TPVertModule}{1mm}
+\newcommand{\RCCLogo}{
+\begin{textblock}{14} (1.5,1.5)
+  \pgfuseimage{logo_rcc}
+\end{textblock}
+}
+
+\definecolor{mycolorcli}{RGB}{53,154,26}
+\definecolor{mycolorcode}{RGB}{0,0,255}
+\definecolor{mycolordef}{RGB}{255,0,0}
+\definecolor{mycolorlink}{RGB}{184,4,255}
+
+\title{\huge{How to connect to Hadoop cluster via ssh}}
+\author{Igor Yakushin \\ \texttt{ivy2@uchicago.edu}}
+%\date{January 20, 2018}
+
+\definecolor{ChicagoMaroon}{RGB}{128,0,0}
+
+\setbeamercolor{title}{bg=ChicagoMaroon}
+
+\begin{document}
+
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamercolor{fcolor}{fg=white,bg=ChicagoMaroon}
+\setbeamertemplate{footline}{
+\begin{beamercolorbox}[ht=4ex,leftskip=1.4cm,rightskip=.3cm]{fcolor}
+\hrule
+\vspace{0.1cm}
+   \hfill \insertshortdate \hfill \insertframenumber/\inserttotalframenumber
+\end{beamercolorbox}
+}
+
+\setbeamercolor{frametitle}{bg=ChicagoMaroon,fg=white}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{ssh}
+  \begin{itemize}
+  \item For the next few lessons we would be connecting to Hadoop cluster via {\color{mycolorcli} ssh}
+  \item You might want to review section 3 from my ``Introduction to Linux and RCC'' tutorial
+    {\color{mycolorcli}
+\begin{verbatim}
+https://canvas.uchicago.edu/courses/23040
+\end{verbatim}
+    }
+    where this is described in more details.
+    If you do not have an access to the tutorial, ask at the office. It is a good idea to refresh your knowledge of Linux and review the whole tutorial since the lack of Linux skills is a continuous source of problems.
+  \item You would need to have ssh client on your laptop.
+    \begin{itemize}
+    \item Mac and Linux users already have it by default
+    \item Windows users might have to install, for example, MobaXterm
+    {\color{mycolorcli}
+\begin{verbatim}
+https://mobaxterm.mobatek.net/
+\end{verbatim}
+    }
+    \end{itemize}
+    
+  \item Make sure to enroll in 2-factor authentication:
+    {\color{mycolorcli}
+\begin{verbatim}
+https://2fa.rcc.uchicago.edu/
+\end{verbatim}
+    }
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{ssh}
+  \begin{itemize}
+    \item You need to be either on campus network or use VPN to be able to connect to Hadoop cluster.
+      VPN is managed by the university IT and can be downloaded here:
+      {\color{mycolorcli}
+        { \tiny
+\begin{verbatim}
+https://uchicago.service-now.com/it?id=kb_article&sys_id=8d7e1ed0db91c0d0432f7f8cbf96195f
+\end{verbatim}
+        }
+      }
+  \item Notice: you cannot use ThinLinc to connect to Hadoop cluster, it only works with midway
+  \item To ssh to Hadoop cluster:
+    \begin{itemize}
+    \item Connect to VPN
+    \item Open a terminal and type there:
+      {\color{mycolorcli}
+\begin{verbatim}
+ssh YourUserName@hadoop.rcc.uchicago.edu
+\end{verbatim}
+      }
+    \item You'll be prompted for password and 2-factor authentication
+    \item Notice: if you mistype your password 3 times, you would be locked out of your account for 4 hours
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\end{document}

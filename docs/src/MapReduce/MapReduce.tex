@@ -1,0 +1,132 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{default}
+
+\mode<presentation>
+%{ \usetheme{boxes} }
+
+
+\usetheme{Madrid}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{tabulary}
+\usepackage{listings}
+\usepackage{verbatimbox}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{pgfpages}
+\usepackage{color}
+
+\pgfdeclareimage[height=1.0cm]{logo_rcc}{../icons/logo_rcc.png}
+\setlength{\TPHorizModule}{1mm}
+\setlength{\TPVertModule}{1mm}
+\newcommand{\RCCLogo}{
+\begin{textblock}{14}(1.5,1.5)
+  \pgfuseimage{logo_rcc}
+\end{textblock}
+}
+
+\definecolor{mycolorcli}{RGB}{53,154,26}
+\definecolor{mycolorcode}{RGB}{0,0,255}
+\definecolor{mycolordef}{RGB}{255,0,0}
+\definecolor{mycolorlink}{RGB}{184,4,255}
+
+\title{\huge{Map-Reduce}}
+\author{Igor Yakushin \\ \texttt{ivy2@uchicago.edu}}
+%\date{January 20, 2018}
+
+\definecolor{ChicagoMaroon}{RGB}{128,0,0}
+
+\setbeamercolor{title}{bg=ChicagoMaroon}
+
+\begin{document}
+
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamercolor{fcolor}{fg=white,bg=ChicagoMaroon}
+\setbeamertemplate{footline}{
+\begin{beamercolorbox}[ht=4ex,leftskip=1.4cm,rightskip=.3cm]{fcolor}
+\hrule
+\vspace{0.1cm}
+   \hfill \insertshortdate \hfill \insertframenumber/\inserttotalframenumber
+\end{beamercolorbox}
+}
+
+\setbeamercolor{frametitle}{bg=ChicagoMaroon,fg=white}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+
+\section{MapReduce}
+\subsection{Introduction}
+\begin{frame}
+ \frametitle{MapReduce}
+ \begin{itemize}
+  \item {\color{mycolordef}\textbf{map}} - convert each record into $(key, value)$ pairs
+  \item {\color{mycolordef}\textbf{reduce}} - apply some reduce operation to the resulting set of $(key, value)$; for example, sum values for each key, or find max, or min, etc.
+  \item Obviously, maps can be done in parallel, independently from each other, on different nodes, for each record
+  \item Between local map and global reduce, perhaps, apply reduce locally on each node before doing it globally and sort the results
+  \item The native way to write your own MapReduce is to extend the corresponding Java classes from MapReduce API
+  \item These days people rarely have to implement their own MapReduce but rather use high level tools like Pig, Hive, Spark, HBase, etc. unless you 
+    are a programmer implementing such a high level tool
+  \end{itemize}
+\end{frame}
+
+\subsection{Examples}
+\begin{frame}
+  \frametitle{Examples of applying MapReduce approach}
+  \begin{itemize}
+  \item {\color{mycolordef}Count how many times each word occurs in a text}
+    \begin{itemize}
+      \item map - for each word {\color{mycolorcode}$w_i$} in a record (for example, a line in a text file) output {\color{mycolorcode}$(w_i,1)$}
+      \item reduce - for each {\color{mycolorcode}$w_i$} sum the values
+    \end{itemize}
+  \item {\color{mycolordef}Count the average number of social contacts a person has grouped by age}
+    \begin{itemize}
+    \item map - for each person {\color{mycolorcode}$p_i$}  of an age {\color{mycolorcode}$a_i$} in a record, output {\color{mycolorcode}$(a_i, (1, contacts_i))$}
+    \item reduce - for each age {\color{mycolorcode}$a_i$}, sum separately the first and second component of the value to obtain number 
+      of people of a given age and total number of contacts, divide the latter by the former
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Examples of applying MapReduce approach}
+  \begin{itemize}
+  \item {\color{mycolordef}Finding common friends, like in Facebook. } For each person a list of friends is given:
+    \begin{lstlisting}[frame=single, basicstyle=\tiny]
+      A -> B C D
+      B -> A C D E
+      C -> A B D E
+      D -> A B C E
+      E -> B C D
+    \end{lstlisting}
+    
+    \begin{itemize}
+    \item map - key is a person and a friend, sorted; value is the list of friends. For example, for C the output from map is:
+      \begin{lstlisting}[frame=single, basicstyle=\tiny]
+        (A C) -> A B D E
+        (B C) -> A B D E
+        (C D) -> A B D E
+        (C E) -> A B D E
+      \end{lstlisting}
+    \item reduce - group the results by key, for example:
+      \begin{lstlisting}[frame=single, basicstyle=\tiny]
+        (A B) -> (A C D E) (B C D)
+      \end{lstlisting}
+      and find the intersection of value lists:
+      \begin{lstlisting}[frame=single, basicstyle=\tiny]
+        (A B) -> (C D)
+      \end{lstlisting}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+\end{document}

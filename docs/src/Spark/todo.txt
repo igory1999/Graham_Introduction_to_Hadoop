@@ -1,0 +1,12 @@
+Monitoring jobs
+Performance tuning
+Interface with Hue
+Jupyter on Hadoop cluster and midway
+
+Explain to yourself all the Spark constructs
+
+Shadowing by import
+
+Spark 3:
+Convert Spark frames to pandas
+

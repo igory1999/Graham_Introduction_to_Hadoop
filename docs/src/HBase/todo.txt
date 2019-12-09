@@ -1,0 +1,2 @@
+When would you want to use HBase?
+Examples of usage
