@@ -1,0 +1,121 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{default}
+
+\mode<presentation>
+%{ \usetheme{boxes} }
+
+
+\usetheme{Madrid}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{tabulary}
+\usepackage{listings}
+\usepackage{verbatimbox}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{pgfpages}
+\usepackage{color}
+
+\pgfdeclareimage[height=1.0cm]{logo_rcc}{../icons/logo_rcc.png}
+\setlength{\TPHorizModule}{1mm}
+\setlength{\TPVertModule}{1mm}
+\newcommand{\RCCLogo}{
+\begin{textblock}{14}(1.5,1.5)
+  \pgfuseimage{logo_rcc}
+\end{textblock}
+}
+
+\definecolor{mycolorcli}{RGB}{53,154,26}
+\definecolor{mycolorcode}{RGB}{0,0,255}
+\definecolor{mycolordef}{RGB}{255,0,0}
+\definecolor{mycolorlink}{RGB}{184,4,255}
+
+\title{\huge{HDFS}}
+\author{Igor Yakushin \\ \texttt{ivy2@uchicago.edu}}
+%\date{January 20, 2018}
+
+\definecolor{ChicagoMaroon}{RGB}{128,0,0}
+
+\setbeamercolor{title}{bg=ChicagoMaroon}
+
+\begin{document}
+
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamercolor{fcolor}{fg=white,bg=ChicagoMaroon}
+\setbeamertemplate{footline}{
+\begin{beamercolorbox}[ht=4ex,leftskip=1.4cm,rightskip=.3cm]{fcolor}
+\hrule
+\vspace{0.1cm}
+   \hfill \insertshortdate \hfill \insertframenumber/\inserttotalframenumber
+\end{beamercolorbox}
+}
+
+\setbeamercolor{frametitle}{bg=ChicagoMaroon,fg=white}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+
+
+\section{HDFS}
+\subsection{Introduction}
+\begin{frame}
+ \frametitle{HDFS}
+    \begin{itemize}
+     \item Any file that is put into HDFS is automatically split into blocks (by default 128M)
+     \item Each block is replicated (by default 3 times)
+     \item The blocks are spread across the cluster so that
+      \begin{itemize}
+	\item calculations can be done in parallel on different blocks to increase performance
+	\item the file system is fault-taulerant with respect to disk/node/rack failure
+	\item if a node goes down, HDFS takes care of creating more replicas automatically
+	\item when a node comes back, extra replicas are destroyed
+	\item if a new node is added, data spreads on it automatically
+	\item there is a {\color{mycolordef}NameNode} that keeps track of where the blocks are
+      \end{itemize}
+	\item The calculations are done on {\color{mycolordef}DataNodes}
+        \item Hadoop tries to do computations where the data is to minimize communication between nodes which is much slower
+    \end{itemize} 
+\end{frame}
+
+\subsection{Usage}
+\begin{frame}[fragile]
+  \frametitle{HDFS: user interface}
+{\color{mycolorcli}
+  \begin{lstlisting}[frame=single, basicstyle=\tiny]
+$ hdfs dfs -ls /user/$USER
+drwx------   - ivy2 ivy2          0 2016-08-12 20:11 /user/ivy2/.Trash                                                                                                                                                                     
+
+$ hdfs dfs -mkdir /user/$USER/test2 
+
+$ hdfs dfs -put /usr/share/dict/linux.words /user/$USER/test2/
+
+$ hdfs dfs -ls -h  /user/$USER/test2/
+-rw-r--r--   3 ivy2 ivy2      4.7 M 2016-08-12 20:12 /user/ivy2/test2/linux.words
+
+$ hdfs dfs -setrep 4  /user/$USER/test2/linux.words
+Replication 4 set: /user/ivy2/test2/linux.words
+
+$ hdfs dfs -ls -h  /user/$USER/test2/
+-rw-r--r--   4 ivy2 ivy2      4.7 M 2016-08-12 20:12 /user/ivy2/test2/linux.words
+
+$ hdfs dfs -mv /user/$USER/test2/linux.words /user/$USER/test2/words.txt
+
+$ hdfs dfs -get /user/$USER/test2/words.txt
+
+$ hdfs dfs -rm /user/$USER/test2/words.txt
+  \end{lstlisting}
+}
+
+
+\end{frame}
+
+
+\end{document}

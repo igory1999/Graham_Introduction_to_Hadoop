@@ -1,0 +1,167 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{default}
+
+\mode<presentation>
+%{ \usetheme{boxes} }
+
+
+\usetheme{Madrid}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{tabulary}
+\usepackage{listings}
+\usepackage{verbatimbox}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{pgfpages}
+\usepackage{color}
+
+\pgfdeclareimage[height=1.0cm]{logo_rcc}{../icons/logo_rcc.png}
+\setlength{\TPHorizModule}{1mm}
+\setlength{\TPVertModule}{1mm}
+\newcommand{\RCCLogo}{
+\begin{textblock}{14}(1.5,1.5)
+  \pgfuseimage{logo_rcc}
+\end{textblock}
+}
+
+\definecolor{mycolorcli}{RGB}{53,154,26}
+\definecolor{mycolorcode}{RGB}{0,0,255}
+\definecolor{mycolordef}{RGB}{255,0,0}
+\definecolor{mycolorlink}{RGB}{184,4,255}
+
+\title{\huge{Overview of Hadoop}}
+\author{Igor Yakushin \\ \texttt{ivy2@uchicago.edu}}
+%\date{January 20, 2018}
+
+\definecolor{ChicagoMaroon}{RGB}{128,0,0}
+
+\setbeamercolor{title}{bg=ChicagoMaroon}
+
+\begin{document}
+
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamercolor{fcolor}{fg=white,bg=ChicagoMaroon}
+\setbeamertemplate{footline}{
+\begin{beamercolorbox}[ht=4ex,leftskip=1.4cm,rightskip=.3cm]{fcolor}
+\hrule
+\vspace{0.1cm}
+   \hfill \insertshortdate \hfill \insertframenumber/\inserttotalframenumber
+\end{beamercolorbox}
+}
+
+\setbeamercolor{frametitle}{bg=ChicagoMaroon,fg=white}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+\section{What is Hadoop?}
+\begin{frame}
+  \frametitle{What is Hadoop?}
+  \begin{itemize}
+   \item A framework to process huge amount of data
+   \item Implemented in Java
+   \item Runs on a cluster of commodity computers, from a few to a few thousand nodes
+   \item Consists of two major components:
+    \begin{itemize}
+      \item {\color{mycolordef}HDFS} - distributed file system; everything you put there is automatically divided into blocks that are replicated and spread across the cluster;
+      \item {\color{mycolordef}MapReduce} - an approach to perform calculations on such data in parallel.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Hadoop zoo}
+  \begin{itemize}
+  \item There is a zoo of other Hadoop related tools
+    \begin{itemize}
+    \item {\color{mycolordef}Hive} - SQL interface to Hadoop built on top of HDFS and MapReduce
+    \item {\color{mycolordef}Impala} - another SQL interface to Hadoop, allegedly much faster
+    \item {\color{mycolordef}HBase} - noSQL fast distributed database on top of HDFS
+    \item {\color{mycolordef}Pig}  -  data processing languague built on top of HDFS and MapReduce
+    \item {\color{mycolordef}Spark} - for performance reasons no longer relies on MapReduce,
+      can be used without Hadoop; its native language is Scala but it can also be used from Java, Python, R
+    \item {\color{mycolordef}Sqoop} - copy data between relational database and Hadoop
+    \item {\color{mycolordef}Flume} - copy data into Hadoop, typically used to store logs from a cluster for subsequent analysis
+    \item {\color{mycolordef}YARN} - resource allocation manager, used to submit jobs
+    \item {\color{mycolordef}Zookeeper} - centralized service for maintaining configuration information, naming, providing distributed synchronization
+    \item {\color{mycolordef}Hue} - web GUI to many of the above tools
+    \end{itemize}
+  \item In Big Data Platform class you'll mostly use pySpark via JupyterHub interface, HDFS, Hive, Pig, Hue.
+  \end{itemize}
+\end{frame}
+
+\section{Hadoop vs traditional RDBMS}
+\subsection{Comparison}
+\begin{frame}
+  \frametitle{Hadoop vs traditional RDBMS}
+  \begin{center}
+
+    \begin{tabulary}{\textwidth}{L | L}
+      \hline
+      {\color{mycolordef}\textbf{RDBMS}} & {\color{mycolordef}\textbf{Hadoop}} \\ \hline
+      do not scale well beyond a few terabytes & easily scales to petabytes by adding more computers to the cluster \\ \hline
+      for large datasets runs on very expensive enterprise server & data is scattered on a cluster of cheap commodity computers \\ \hline
+      works on structured data; one needs to predefine the data schema & can accept any unstructured data and worry about interpreting and reinterpreting it later \\ \hline
+      data needs to be normalized to avoid duplication and enforce constraints & works best on a single denormalized table \\ \hline
+
+    \end{tabulary}
+
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Hadoop vs traditional RDBMS}
+  \begin{center}
+
+    \begin{tabulary}{\textwidth}{L | L}
+      \hline
+      {\color{mycolordef}\textbf{RDBMS}} & {\color{mycolordef}\textbf{Hadoop}} \\ \hline
+      can be faster for queries on small subset of data & might introduce too much overhead for such queries \\ \hline
+      ACID - compliant & in general - not ACID-compliant \\ \hline
+      natively speaks SQL & natively implements MapReduce approach in Java on top of which some subset of SQL might be supported \\ \hline 
+      is good for banks to keep track of transactions & is good for data scientists to try various ideas on a huge sets of data  \\ \hline
+    \end{tabulary}
+
+  \end{center}
+\end{frame}
+
+\subsection{ACID compliance}
+\begin{frame}
+`\frametitle{ACID compliance}
+\begin{itemize}
+  \item {\color{mycolordef}\textbf{A}}tomicity - The database transaction must completely succeed or completely fail
+  \item {\color{mycolordef}\textbf{C}}onsistency - During the database transaction, RDBMS progresses from one valid state to another. The state is never invalid
+  \item {\color{mycolordef}\textbf{I}}solation - The client's database transaction must occur in isolation from other clients attempting to transact
+  \item {\color{mycolordef}\textbf{D}}urability - Once transaction is committed, it will remain so, 
+    even in the event of power loss, crashes, or errors. The data operation that was part of the transaction must be reflected in nonvolatile storage. 
+\end{itemize}
+
+Hadoop has no concept of transaction so is not ACID compiliant.
+
+\end{frame}
+
+\section{Distributions}
+\begin{frame}
+ \frametitle{Distributions}
+ There are many Hadoop distributions that bundle different set of tools and add their own:
+ \begin{itemize}
+  \item {\color{mycolordef}Apache}  - free, open source;
+  \item {\color{mycolordef}Cloudera} - we are using Cloudera 6.3;
+  \item {\color{mycolordef}Hortonworks} - Hortonworks and Cloudera recently merged but they still maintain two separate distributions and working on the joint one
+  \item {\color{mycolordef}HDInsight} - Microsoft  Azure's Cloud based Hadoop Distribution
+  \item {\color{mycolordef}MapR}
+  \item ...
+  \end{itemize}
+  Many distributions, for example Cloudera, provide virtual machines to play with
+\end{frame}
+
+
+\end{document}

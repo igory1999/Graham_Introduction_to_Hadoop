@@ -1,0 +1,158 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{default}
+
+\mode<presentation>
+%{ \usetheme{boxes} }
+
+
+\usetheme{Madrid}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{tabulary}
+\usepackage{listings}
+\usepackage{verbatimbox}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{pgfpages}
+\usepackage{color}
+
+\pgfdeclareimage[height=1.0cm]{logo_rcc}{../icons/logo_rcc.png}
+\setlength{\TPHorizModule}{1mm}
+\setlength{\TPVertModule}{1mm}
+\newcommand{\RCCLogo}{
+\begin{textblock}{14}(1.5,1.5)
+  \pgfuseimage{logo_rcc}
+\end{textblock}
+}
+
+\definecolor{mycolorcli}{RGB}{53,154,26}
+\definecolor{mycolorcode}{RGB}{0,0,255}
+\definecolor{mycolordef}{RGB}{255,0,0}
+\definecolor{mycolorlink}{RGB}{184,4,255}
+
+\title{\huge{Streaming}}
+\author{Igor Yakushin \\ \texttt{ivy2@uchicago.edu}}
+%\date{January 20, 2018}
+
+\definecolor{ChicagoMaroon}{RGB}{128,0,0}
+
+\setbeamercolor{title}{bg=ChicagoMaroon}
+
+\begin{document}
+
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamercolor{fcolor}{fg=white,bg=ChicagoMaroon}
+\setbeamertemplate{footline}{
+\begin{beamercolorbox}[ht=4ex,leftskip=1.4cm,rightskip=.3cm]{fcolor}
+\hrule
+\vspace{0.1cm}
+   \hfill \insertshortdate \hfill \insertframenumber/\inserttotalframenumber
+\end{beamercolorbox}
+}
+
+\setbeamercolor{frametitle}{bg=ChicagoMaroon,fg=white}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+  
+\section{Streaming}
+  \begin{frame}[fragile]
+ \frametitle{MapReduce: using streaming}
+ \begin{itemize}
+ \item Streaming interface allows one to write MapReduce in any language although the functionality is limited and the performance is worse than what one can
+ get by using native Java API. 
+\item Mapper takes input from stdin, breaks it into records - lines in a text file - and is expected to print to stdout pairs of key and value separated by Tab;
+  everything before the first Tab is considered a key, the rest of the line is considered a value
+ \item Similarly reducer is expected to receive such pairs in stdin and prints its results to stdout
+ \item When launching a job, one needs to use Hadoop's streaming jar and specify mapper, reducer, input and output files as options
+
+ \end{itemize}
+\end{frame}
+
+  
+\begin{frame}[fragile]
+ \frametitle{MapReduce: using streaming}
+
+ \begin{itemize}
+   \item In this example we implement {\color{mycolorcli}WordCount.java} functionality in python
+   \item {\color{mycolorcli}mapper.py}:
+{\color{mycolorcode}
+  \begin{lstlisting}[frame=single, basicstyle=\tiny,language=python]
+import sys
+
+for line in sys.stdin:
+    line = line.strip()
+    words = line.split()
+    for word in words:
+        print '%s\t%s' % (word, 1)
+
+ \end{lstlisting} 
+}
+ \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{MapReduce: using streaming}
+\begin{itemize}
+  \item {\color{mycolorcli}reducer.py}:
+{\color{mycolorcode}
+  \begin{lstlisting}[frame=single, basicstyle=\tiny,language=python]
+from operator import itemgetter
+import sys
+
+current_word = None
+current_count = 0
+word = None
+
+for line in sys.stdin: 
+    line = line.strip()
+    word, count = line.split('\t', 1)
+    try:
+        count = int(count)
+    except ValueError:
+        continue
+
+    if current_word == word:
+        current_count += count
+    else:
+        if current_word:
+            print '%s\t%s' % (current_word, current_count)
+        current_count = count
+        current_word = word
+
+if current_word == word:
+    print '%s\t%s' % (current_word, current_count)
+ \end{lstlisting}
+}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{MapReduce: using streaming}
+
+ \begin{itemize}
+   \item To run a job:
+{\color{mycolorcli}
+  \begin{lstlisting}[frame=single, basicstyle=\tiny]
+hadoop jar /opt/cloudera/parcels/CDH/lib/hadoop-mapreduce/hadoop-streaming.jar \ 
+       -input /user/$USER/wordcount/README \
+       -output /user/$USER/wordcount/streaming-out-py \ 
+       -file mapper.py -mapper mapper.py -file reducer.py -reducer reducer.py
+ \end{lstlisting}
+}
+
+ \end{itemize}
+
+
+\end{frame}
+
+\end{document}
